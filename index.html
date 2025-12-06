@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日々の記録アプリ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+        @media print {
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        // グローバル状態
+        let state = {
+            records: [],
+            view: 'dashboard',
+            showAddForm: false,
+            selectedRecord: null,
+            showExportOptions: false,
+            searchQuery: '',
+            filterTags: [],
+            newRecord: {
+                date: new Date().toISOString().split('T')[0],
+                situation: '',
+                insights: '',
+                tags: []
+            }
+        };
+
+        const tagOptions = [
+            '感覚過敏', '対人関係', '学習面', '不安', '成功体験',
+            '失敗体験', '環境調整', '声かけ', '朝の困難', '夜の困難',
+            '食事', '睡眠', '外出', '家族関係', '進歩', '停滞', '療育放デイ等'
+        ];
+
+        // ローカルストレージから読み込み
+        function loadData() {
+            const saved = localStorage.getItem('daily_records');
+            if (saved) {
+                try {
+                    state.records = JSON.parse(saved);
+                    // 日付でソート（新しい順）
+                    state.records.sort((a, b) => new Date(b.date) - new Date(a.date));
+                } catch (e) {
+                    console.error('データ読み込みエラー:', e);
+                }
+            }
+        }
+
+        // ローカルストレージに保存
+        function saveData() {
+            localStorage.setItem('daily_records', JSON.stringify(state.records));
+        }
+
+        // 統計計算
+        function getStats() {
+            const total = state.records.length;
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            const last7Days = state.records.filter(r => new Date(r.date) >= weekAgo).length;
+            
+            // タグ別集計
+            const tagCounts = {};
+            state.records.forEach(r => {
+                r.tags.forEach(tag => {
+                    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                });
+            });
+            
+            return { total, last7Days, tagCounts };
+        }
+
+        // 記録追加
+        function addRecord() {
+            if (!state.newRecord.situation.trim()) {
+                alert('状況を入力してください');
+                return;
+            }
+
+            const record = {
+                ...state.newRecord,
+                id: Date.now(),
+                createdAt: new Date().toISOString()
+            };
+
+            state.records = [record, ...state.records];
+            saveData();
+            state.showAddForm = false;
+            state.newRecord = {
+                date: new Date().toISOString().split('T')[0],
+                situation: '',
+                insights: '',
+                tags: []
+            };
+            render();
+        }
+
+        // タグ切り替え
+        function toggleTag(tag) {
+            const tags = state.newRecord.tags;
+            if (tags.includes(tag)) {
+                state.newRecord.tags = tags.filter(t => t !== tag);
+            } else {
+                state.newRecord.tags = [...tags, tag];
+            }
+            render();
+        }
+
+        // フィルタータグ切り替え
+        function toggleFilterTag(tag) {
+            const tags = state.filterTags;
+            if (tags.includes(tag)) {
+                state.filterTags = tags.filter(t => t !== tag);
+            } else {
+                state.filterTags = [...tags, tag];
+            }
+            render();
+        }
+
+        // 記録フィルタリング
+        function getFilteredRecords() {
+            let filtered = [...state.records];
+            
+            // 検索クエリでフィルタ
+            if (state.searchQuery.trim()) {
+                const query = state.searchQuery.toLowerCase();
+                filtered = filtered.filter(r => 
+                    r.situation.toLowerCase().includes(query) ||
+                    (r.insights && r.insights.toLowerCase().includes(query)) ||
+                    r.date.includes(query)
+                );
+            }
+            
+            // タグでフィルタ
+            if (state.filterTags.length > 0) {
+                filtered = filtered.filter(r => 
+                    state.filterTags.some(tag => r.tags.includes(tag))
+                );
+            }
+            
+            return filtered;
+        }
+
+        // JSONエクスポート
+        function exportJSON() {
+            if (state.records.length === 0) {
+                alert('エクスポートするデータがありません');
+                return;
+            }
+            const dataStr = JSON.stringify(state.records, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `日々の記録_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            alert('JSONバックアップをダウンロードしました');
+        }
+
+        // テキストエクスポート（Gem④用）
+        function exportText() {
+            if (state.records.length === 0) {
+                alert('エクスポートするデータがありません');
+                return;
+            }
+            
+            let text = `# 日々の記録\n`;
+            text += `作成日: ${new Date().toLocaleDateString('ja-JP')}\n`;
+            text += `総記録数: ${state.records.length}\n\n`;
+            text += `---\n\n`;
+            
+            state.records.forEach((r, index) => {
+                text += `## 記録 ${index + 1}: ${r.date}\n\n`;
+                
+                if (r.tags.length > 0) {
+                    text += `**タグ:** ${r.tags.join(', ')}\n\n`;
+                }
+                
+                text += `**出来事:**\n${r.situation}\n\n`;
+                
+                if (r.insights) {
+                    text += `**気づき:**\n${r.insights}\n\n`;
+                }
+                
+                text += `---\n\n`;
+            });
+            
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `日々の記録_Gem④用_${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            alert('テキストファイルをダウンロードしました\n\nこのファイルをGem④にアップロードして、月1回の振り返りに使用してください。');
+        }
+
+        // 期間指定エクスポート（Gem④用）
+        function exportPeriod() {
+            const startDate = prompt('開始日を入力してください（例: 2025-11-01）');
+            if (!startDate) return;
+            
+            const endDate = prompt('終了日を入力してください（例: 2025-11-30）');
+            if (!endDate) return;
+            
+            const filtered = state.records.filter(r => {
+                const recordDate = new Date(r.date);
+                return recordDate >= new Date(startDate) && recordDate <= new Date(endDate);
+            });
+            
+            if (filtered.length === 0) {
+                alert('指定期間の記録がありません');
+                return;
+            }
+            
+            let text = `# 日々の記録（${startDate} 〜 ${endDate}）\n`;
+            text += `作成日: ${new Date().toLocaleDateString('ja-JP')}\n`;
+            text += `記録数: ${filtered.length}\n\n`;
+            text += `---\n\n`;
+            
+            filtered.forEach((r, index) => {
+                text += `## ${r.date}\n\n`;
+                
+                if (r.tags.length > 0) {
+                    text += `**タグ:** ${r.tags.join(', ')}\n\n`;
+                }
+                
+                text += `**出来事:**\n${r.situation}\n\n`;
+                
+                if (r.insights) {
+                    text += `**気づき:**\n${r.insights}\n\n`;
+                }
+                
+                text += `---\n\n`;
+            });
+            
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `日々の記録_${startDate}_${endDate}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            alert(`${startDate} 〜 ${endDate} の記録をダウンロードしました`);
+        }
+
+        // データインポート
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const imported = JSON.parse(event.target.result);
+                        
+                        if (!Array.isArray(imported)) {
+                            alert('無効なデータ形式です');
+                            return;
+                        }
+                        
+                        // 重複チェック（IDベース）
+                        const existingIds = new Set(state.records.map(r => r.id));
+                        const newRecords = imported.filter(r => !existingIds.has(r.id));
+                        
+                        if (newRecords.length === 0) {
+                            alert('新しいデータがありません（すべて既存）');
+                            return;
+                        }
+                        
+                        if (confirm(`${newRecords.length}件の新しい記録をインポートしますか？`)) {
+                            state.records = [...state.records, ...newRecords];
+                            state.records.sort((a, b) => new Date(b.date) - new Date(a.date));
+                            saveData();
+                            render();
+                            alert(`${newRecords.length}件の記録をインポートしました`);
+                        }
+                    } catch (e) {
+                        alert('データの読み込みに失敗しました: ' + e.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // データ全削除
+        function clearAllData() {
+            if (!confirm('すべてのデータを削除しますか？\n\nこの操作は取り消せません。\n事前にバックアップをダウンロードすることをお勧めします。')) {
+                return;
+            }
+            
+            if (!confirm('本当に削除しますか？')) {
+                return;
+            }
+            
+            state.records = [];
+            saveData();
+            render();
+            alert('すべてのデータを削除しました');
+        }
+
+        // レンダリング
+        function render() {
+            const stats = getStats();
+            const app = document.getElementById('app');
+
+            app.innerHTML = `
+                <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+                    <!-- ヘッダー -->
+                    <div class="bg-white shadow-sm border-b no-print">
+                        <div class="max-w-7xl mx-auto px-4 py-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h1 class="text-2xl font-bold text-gray-900">日々の記録</h1>
+                                    <p class="text-sm text-gray-600">完全プライベート・ローカル保存</p>
+                                </div>
+                                <button onclick="openAddForm()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                                    ➕ 新規記録
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ナビ -->
+                    <div class="max-w-7xl mx-auto px-4 py-4 no-print">
+                        <div class="flex gap-2">
+                            <button onclick="changeView('dashboard')" class="px-4 py-2 rounded-lg ${state.view === 'dashboard' ? 'bg-white shadow' : 'bg-white/50'}">
+                                📊 ダッシュボード
+                            </button>
+                            <button onclick="changeView('records')" class="px-4 py-2 rounded-lg ${state.view === 'records' ? 'bg-white shadow' : 'bg-white/50'}">
+                                📝 記録一覧
+                            </button>
+                            <button onclick="changeView('export')" class="px-4 py-2 rounded-lg ${state.view === 'export' ? 'bg-white shadow' : 'bg-white/50'}">
+                                📤 エクスポート
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- メインコンテンツ -->
+                    <div class="max-w-7xl mx-auto px-4 py-6">
+                        ${state.view === 'dashboard' ? renderDashboard(stats) : 
+                          state.view === 'records' ? renderRecords() : 
+                          renderExport()}
+                    </div>
+                </div>
+
+                ${state.showAddForm ? renderAddForm() : ''}
+                ${state.selectedRecord ? renderDetail() : ''}
+            `;
+        }
+
+        function renderDashboard(stats) {
+            return `
+                <div class="space-y-6">
+                    <!-- 統計 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <div class="text-sm text-gray-600 mb-1">総記録数</div>
+                            <div class="text-3xl font-bold text-indigo-600">${stats.total}</div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <div class="text-sm text-gray-600 mb-1">過去7日間</div>
+                            <div class="text-3xl font-bold text-green-600">${stats.last7Days}</div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <div class="text-sm text-gray-600 mb-1">平均（週）</div>
+                            <div class="text-3xl font-bold text-purple-600">${stats.total > 0 ? (stats.last7Days).toFixed(1) : 0}</div>
+                        </div>
+                    </div>
+
+                    <!-- タグ別集計 -->
+                    ${Object.keys(stats.tagCounts).length > 0 ? `
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <h3 class="text-lg font-semibold mb-4">タグ別集計</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                ${Object.entries(stats.tagCounts)
+                                    .sort((a, b) => b[1] - a[1])
+                                    .slice(0, 8)
+                                    .map(([tag, count]) => `
+                                    <div class="p-3 border rounded-lg">
+                                        <div class="text-sm text-gray-600">${tag}</div>
+                                        <div class="text-2xl font-bold text-indigo-600">${count}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- 最近の記録 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold mb-4">最近の記録（5件）</h3>
+                        ${state.records.length === 0 ? `
+                            <div class="text-center py-8 text-gray-500">
+                                まだ記録がありません。<br>「新規記録」から始めましょう。
+                            </div>
+                        ` : `
+                            <div class="space-y-3">
+                                ${state.records.slice(0, 5).map(r => `
+                                    <div onclick="openDetail(${r.id})" class="p-4 border rounded-lg hover:bg-indigo-50 cursor-pointer">
+                                        <div class="flex justify-between mb-2">
+                                            <span class="font-medium">${r.date}</span>
+                                            <div class="flex gap-1 flex-wrap justify-end">
+                                                ${r.tags.map(t => `
+                                                    <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded">${t}</span>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                        <div class="text-gray-700">${r.situation.length > 100 ? r.situation.substring(0, 100) + '...' : r.situation}</div>
+                                        ${r.insights ? `<div class="mt-2 text-sm text-gray-600">💡 ${r.insights.length > 50 ? r.insights.substring(0, 50) + '...' : r.insights}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `}
+                    </div>
+
+                    <!-- クイックアクション -->
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-sm p-6 text-white no-print">
+                        <h3 class="text-lg font-semibold mb-2">💡 Gem④との連携</h3>
+                        <p class="text-sm opacity-90 mb-4">
+                            月1回、記録をテキストファイルでエクスポートして、Gem④にアップロードすることで、詳細な分析と振り返りができます。
+                        </p>
+                        <button onclick="changeView('export')" class="bg-white text-indigo-600 px-4 py-2 rounded-lg hover:bg-gray-100">
+                            📤 エクスポートページへ
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderRecords() {
+            const filtered = getFilteredRecords();
+            
+            return `
+                <div class="space-y-4">
+                    <!-- 検索・フィルター -->
+                    <div class="bg-white rounded-xl shadow-sm p-4 no-print">
+                        <div class="space-y-3">
+                            <div>
+                                <input type="text" 
+                                    id="search-input"
+                                    placeholder="🔍 検索（出来事、気づき、日付）" 
+                                    value="${state.searchQuery}"
+                                    oninput="updateSearch(this.value)"
+                                    class="w-full px-4 py-2 border rounded-lg">
+                            </div>
+                            
+                            <div>
+                                <div class="text-sm font-medium mb-2">タグでフィルター:</div>
+                                <div class="flex flex-wrap gap-2">
+                                    ${tagOptions.map(tag => `
+                                        <button onclick="toggleFilterTag('${tag}')" type="button"
+                                            class="px-3 py-1 text-sm rounded-full ${
+                                                state.filterTags.includes(tag) 
+                                                    ? 'bg-indigo-600 text-white' 
+                                                    : 'bg-gray-200 text-gray-700'
+                                            }">
+                                            ${tag}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            
+                            ${state.searchQuery || state.filterTags.length > 0 ? `
+                                <div class="flex justify-between items-center pt-2 border-t">
+                                    <span class="text-sm text-gray-600">
+                                        ${filtered.length}件の記録を表示中
+                                    </span>
+                                    <button onclick="clearFilters()" class="text-sm text-indigo-600 hover:underline">
+                                        フィルターをクリア
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <!-- 記録一覧 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold mb-4">
+                            ${state.searchQuery || state.filterTags.length > 0 ? 'フィルター結果' : 'すべての記録'}
+                            （${filtered.length}件）
+                        </h3>
+                        ${filtered.length === 0 ? `
+                            <div class="text-center py-8 text-gray-500">
+                                ${state.searchQuery || state.filterTags.length > 0 
+                                    ? '条件に一致する記録がありません' 
+                                    : '記録がありません'}
+                            </div>
+                        ` : `
+                            <div class="space-y-3">
+                                ${filtered.map(r => `
+                                    <div onclick="openDetail(${r.id})" class="p-4 border rounded-lg hover:bg-indigo-50 cursor-pointer">
+                                        <div class="flex justify-between mb-2">
+                                            <span class="font-medium">${r.date}</span>
+                                            <div class="flex gap-1 flex-wrap justify-end">
+                                                ${r.tags.map(t => `
+                                                    <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded">${t}</span>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                        <div class="text-gray-700">${r.situation}</div>
+                                        ${r.insights ? `<div class="mt-2 text-sm text-gray-600 bg-yellow-50 p-2 rounded">💡 ${r.insights}</div>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderExport() {
+            return `
+                <div class="space-y-6">
+                    <!-- Gem④連携 -->
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                        <h2 class="text-2xl font-bold mb-2">📤 Gem④との連携</h2>
+                        <p class="opacity-90 mb-4">
+                            記録をテキストファイルでエクスポートして、Gem④にアップロードすることで、
+                            月1回の詳細な振り返りと分析ができます。
+                        </p>
+                    </div>
+
+                    <!-- エクスポートオプション -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <h3 class="text-lg font-semibold mb-3">📄 テキストエクスポート（推奨）</h3>
+                            <p class="text-sm text-gray-600 mb-4">
+                                すべての記録をテキスト形式でエクスポート。Gem④にアップロードして月1回の振り返りに使用します。
+                            </p>
+                            <button 
+                                onclick="exportText()" 
+                                class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                                ${state.records.length === 0 ? 'disabled' : ''}>
+                                📄 テキストファイルをダウンロード
+                            </button>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-sm p-6">
+                            <h3 class="text-lg font-semibold mb-3">📅 期間指定エクスポート</h3>
+                            <p class="text-sm text-gray-600 mb-4">
+                                特定期間の記録のみをエクスポート。月次レポートの作成に便利です。
+                            </p>
+                            <button 
+                                onclick="exportPeriod()" 
+                                class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                                ${state.records.length === 0 ? 'disabled' : ''}>
+                                📅 期間を指定してダウンロード
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- バックアップ・復元 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold mb-4">💾 バックアップと復元</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <button 
+                                onclick="exportJSON()" 
+                                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
+                                ${state.records.length === 0 ? 'disabled' : ''}>
+                                💾 JSONバックアップ
+                            </button>
+                            <button 
+                                onclick="importData()" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                📥 データをインポート
+                            </button>
+                            <button 
+                                onclick="clearAllData()" 
+                                class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50"
+                                ${state.records.length === 0 ? 'disabled' : ''}>
+                                🗑️ すべて削除
+                            </button>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-600 bg-yellow-50 p-3 rounded">
+                            <strong>⚠️ 重要:</strong> ブラウザのデータクリアやキャッシュ削除で記録が消える可能性があります。
+                            定期的にJSONバックアップをダウンロードして保管してください。
+                        </div>
+                    </div>
+
+                    <!-- 使い方ガイド -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold mb-4">📖 Gem④との連携方法</h3>
+                        <div class="space-y-3 text-sm text-gray-700">
+                            <div class="flex gap-3">
+                                <div class="flex-shrink-0 w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
+                                <div>
+                                    <strong>記録を蓄積する</strong><br>
+                                    日々の出来事、気づき、タグを記録していきます。
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="flex-shrink-0 w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
+                                <div>
+                                    <strong>月1回、テキストエクスポート</strong><br>
+                                    上記の「テキストファイルをダウンロード」をクリック。
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="flex-shrink-0 w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
+                                <div>
+                                    <strong>Gem④にアップロード</strong><br>
+                                    Gem④を開き、ダウンロードしたテキストファイルをアップロード。
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="flex-shrink-0 w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold">4</div>
+                                <div>
+                                    <strong>振り返りと分析</strong><br>
+                                    Gem④が記録を分析し、パターンの抽出、進捗の可視化、来月の目標を提案します。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 統計情報 -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-lg font-semibold mb-4">📊 現在の記録状況</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                                <div class="text-sm text-gray-600">総記録数</div>
+                                <div class="text-2xl font-bold text-indigo-600">${state.records.length}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-600">最古の記録</div>
+                                <div class="text-sm font-medium">${state.records.length > 0 ? state.records[state.records.length - 1].date : '-'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-600">最新の記録</div>
+                                <div class="text-sm font-medium">${state.records.length > 0 ? state.records[0].date : '-'}</div>
+                            </div>
+                            <div>
+                                <div class="text-sm text-gray-600">記録期間</div>
+                                <div class="text-sm font-medium">
+                                    ${state.records.length > 1 ? 
+                                        Math.ceil((new Date(state.records[0].date) - new Date(state.records[state.records.length - 1].date)) / (1000 * 60 * 60 * 24)) + '日間' 
+                                        : '-'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAddForm() {
+            return `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div class="p-6 border-b sticky top-0 bg-white">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-xl font-bold">新しい記録</h2>
+                                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">日付 *</label>
+                                <input type="date" id="input-date" value="${state.newRecord.date}" 
+                                    class="w-full px-4 py-2 border rounded-lg">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium mb-2">今日の出来事 *</label>
+                                <textarea id="input-situation" rows="4" 
+                                    placeholder="何が起きましたか？&#10;例：朝、登校準備で癇癪を起こしました"
+                                    class="w-full px-4 py-2 border rounded-lg">${state.newRecord.situation}</textarea>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    できるだけ具体的に記録してください
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium mb-2">気づき・メモ</label>
+                                <textarea id="input-insights" rows="3" 
+                                    placeholder="この出来事から分かったこと&#10;例：複数の指示を出してしまったのが原因かも"
+                                    class="w-full px-4 py-2 border rounded-lg">${state.newRecord.insights}</textarea>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    うまくいった時の要因、うまくいかなかった時の要因など
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium mb-2">タグ</label>
+                                <div class="flex flex-wrap gap-2">
+                                    ${tagOptions.map(tag => `
+                                        <button onclick="toggleTag('${tag}')" type="button"
+                                            class="px-3 py-1 text-sm rounded-full transition-colors ${
+                                                state.newRecord.tags.includes(tag) 
+                                                    ? 'bg-indigo-600 text-white' 
+                                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                            }">
+                                            ${tag}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-6 border-t bg-gray-50 flex gap-3">
+                            <button onclick="closeModal()" class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-100">
+                                キャンセル
+                            </button>
+                            <button onclick="saveRecord()" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                                保存
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDetail() {
+            const r = state.selectedRecord;
+            return `
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div class="p-6 border-b sticky top-0 bg-white">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-xl font-bold">${r.date} の記録</h2>
+                                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 space-y-4">
+                            ${r.tags.length > 0 ? `
+                                <div class="flex gap-2 flex-wrap">
+                                    ${r.tags.map(t => `
+                                        <span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full">${t}</span>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+
+                            <div>
+                                <h3 class="font-semibold mb-2 text-gray-700">出来事</h3>
+                                <p class="text-gray-900 whitespace-pre-wrap">${r.situation}</p>
+                            </div>
+
+                            ${r.insights ? `
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                    <h3 class="font-semibold mb-2 text-gray-700">💡 気づき</h3>
+                                    <p class="text-gray-900 whitespace-pre-wrap">${r.insights}</p>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="text-xs text-gray-500 pt-2 border-t">
+                                作成日時: ${new Date(r.createdAt).toLocaleString('ja-JP')}
+                            </div>
+                        </div>
+
+                        <div class="p-6 border-t flex justify-between">
+                            <button onclick="closeModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-100">
+                                閉じる
+                            </button>
+                            <button onclick="deleteRecord(${r.id})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                                🗑️ 削除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // グローバル関数（HTMLから呼び出し可能）
+        function openAddForm() {
+            state.showAddForm = true;
+            render();
+            // フォーカスを状況入力欄に
+            setTimeout(() => {
+                const input = document.getElementById('input-situation');
+                if (input) input.focus();
+            }, 100);
+        }
+
+        function closeModal() {
+            state.showAddForm = false;
+            state.selectedRecord = null;
+            render();
+        }
+
+        function changeView(view) {
+            state.view = view;
+            render();
+        }
+
+        function saveRecord() {
+            // フォームから値を取得
+            state.newRecord.date = document.getElementById('input-date').value;
+            state.newRecord.situation = document.getElementById('input-situation').value;
+            state.newRecord.insights = document.getElementById('input-insights').value;
+            addRecord();
+        }
+
+        function openDetail(id) {
+            state.selectedRecord = state.records.find(r => r.id === id);
+            render();
+        }
+
+        function deleteRecord(id) {
+            if (confirm('この記録を削除しますか？\n\nこの操作は取り消せません。')) {
+                state.records = state.records.filter(r => r.id !== id);
+                saveData();
+                state.selectedRecord = null;
+                render();
+            }
+        }
+
+        function updateSearch(query) {
+            state.searchQuery = query;
+            render();
+        }
+
+        function clearFilters() {
+            state.searchQuery = '';
+            state.filterTags = [];
+            render();
+        }
+
+        // 初期化
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            render();
+        });
+
+        // データの定期保存（5分ごと）
+        setInterval(() => {
+            if (state.records.length > 0) {
+                saveData();
+            }
+        }, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
