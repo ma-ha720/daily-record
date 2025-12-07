@@ -112,7 +112,21 @@
             } else {
                 state.newRecord.tags = [...tags, tag];
             }
-            render();
+            // render()を呼ばず、タグボタンのスタイルだけ更新
+            updateTagButtons();
+        }
+
+        // タグボタンのスタイルのみ更新（新規追加）
+        function updateTagButtons() {
+            const buttons = document.querySelectorAll('[data-tag-button]');
+            buttons.forEach(button => {
+                const tag = button.getAttribute('data-tag');
+                if (state.newRecord.tags.includes(tag)) {
+                    button.className = 'px-3 py-1 text-sm rounded-full transition-colors bg-indigo-600 text-white';
+                } else {
+                    button.className = 'px-3 py-1 text-sm rounded-full transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300';
+                }
+            });
         }
 
         // フィルタータグ切り替え
@@ -769,6 +783,7 @@
                                 <div class="flex flex-wrap gap-2">
                                     ${tagOptions.map(tag => `
                                         <button onclick="toggleTag('${tag}')" type="button"
+                                            data-tag-button data-tag="${tag}"
                                             class="px-3 py-1 text-sm rounded-full transition-colors ${
                                                 state.newRecord.tags.includes(tag) 
                                                     ? 'bg-indigo-600 text-white' 
