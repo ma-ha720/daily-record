@@ -7,926 +7,1365 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        @media print {
-            .no-print { display: none; }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .radio-emoji {
+            display: inline-block;
+            padding: 6px 10px;
+            margin: 3px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 14px;
+        }
+        
+        .radio-emoji:hover {
+            transform: scale(1.05);
+            border-color: #3b82f6;
+        }
+        
+        .radio-emoji input[type="radio"] {
+            display: none;
+        }
+        
+        .radio-emoji input[type="radio"]:checked + label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .checkbox-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            margin: 3px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 14px;
+        }
+        
+        .checkbox-tag:hover {
+            transform: scale(1.05);
+            border-color: #3b82f6;
+        }
+        
+        .checkbox-tag input[type="checkbox"] {
+            display: none;
+        }
+        
+        .checkbox-tag input[type="checkbox"]:checked + label {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-color: #f093fb;
+        }
+        
+        .mode-button {
+            padding: 15px 30px;
+            border-radius: 25px;
+            border: 3px solid #e0e0e0;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .mode-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mode-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 25px;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+            padding: 15px 40px;
+            border-radius: 25px;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        textarea, input[type="date"] {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        textarea:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .nav-button {
+            padding: 12px 24px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .nav-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .nav-button:not(.active) {
+            background: white;
+            color: #6b7280;
+        }
+        
+        .nav-button:not(.active):hover {
+            background: #f3f4f6;
+        }
+        
+        .record-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .record-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-simple {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+        
+        .badge-detailed {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease;
         }
     </style>
 </head>
-<body>
-    <div id="app"></div>
+<body class="min-h-screen py-8">
+    <div class="container mx-auto px-4 max-w-4xl">
+        
+        <!-- ヘッダー -->
+        <header class="text-center mb-8 fade-in">
+            <h1 class="text-4xl font-bold mb-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                日々の記録 📝
+            </h1>
+            <p class="text-gray-600">お子さんとの日々を優しく記録しましょう</p>
+        </header>
+
+        <!-- ナビゲーション -->
+        <nav class="mb-6 flex gap-3 flex-wrap justify-center">
+            <button onclick="showSection('record')" id="btn-record" class="nav-button active">
+                記録する
+            </button>
+            <button onclick="showSection('list')" id="btn-list" class="nav-button">
+                記録一覧
+            </button>
+            <button onclick="showSection('dashboard')" id="btn-dashboard" class="nav-button">
+                ダッシュボード
+            </button>
+            <button onclick="showSection('export')" id="btn-export" class="nav-button">
+                エクスポート
+            </button>
+        </nav>
+
+        <!-- 記録作成セクション -->
+        <section id="section-record" class="card p-8 fade-in">
+            <h2 class="text-2xl font-bold mb-6 text-center">✨ 今日の記録</h2>
+            
+            <!-- モード選択 -->
+            <div class="mb-8 text-center">
+                <p class="text-gray-600 mb-4">記録の方法を選んでください</p>
+                <div class="flex gap-4 justify-center flex-wrap">
+                    <button type="button" onclick="setRecordMode('simple')" id="mode-simple" class="mode-button active">
+                        😊 簡易記録
+                    </button>
+                    <button type="button" onclick="setRecordMode('detailed')" id="mode-detailed" class="mode-button">
+                        📝 詳細記録
+                    </button>
+                </div>
+            </div>
+
+            <!-- 記録フォーム -->
+            <form id="recordForm" onsubmit="saveRecord(event)">
+                
+                <!-- 日付 -->
+                <div class="mb-6">
+                    <label class="block text-lg font-semibold mb-2">📅 日付</label>
+                    <input type="date" id="recordDate" required class="w-full text-lg">
+                </div>
+
+                <!-- 簡易記録モード -->
+                <div id="simple-mode-fields">
+                    <!-- 子どもの様子 -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-3">😊 子どもの様子</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <div class="radio-emoji">
+                                <input type="radio" name="childMood" value="◎" id="child-excellent">
+                                <label for="child-excellent" class="cursor-pointer px-2 py-1 block">◎ とても良い</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="childMood" value="○" id="child-good">
+                                <label for="child-good" class="cursor-pointer px-2 py-1 block">○ 良い</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="childMood" value="△" id="child-fair">
+                                <label for="child-fair" class="cursor-pointer px-2 py-1 block">△ 普通</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="childMood" value="×" id="child-bad">
+                                <label for="child-bad" class="cursor-pointer px-2 py-1 block">× 良くない</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- あなたの余裕 -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-3">💪 あなたの余裕</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <div class="radio-emoji">
+                                <input type="radio" name="parentCapacity" value="◎" id="parent-excellent">
+                                <label for="parent-excellent" class="cursor-pointer px-2 py-1 block">◎ 余裕あり</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="parentCapacity" value="○" id="parent-good">
+                                <label for="parent-good" class="cursor-pointer px-2 py-1 block">○ まあまあ</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="parentCapacity" value="△" id="parent-fair">
+                                <label for="parent-fair" class="cursor-pointer px-2 py-1 block">△ 少し疲れ</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="parentCapacity" value="×" id="parent-bad">
+                                <label for="parent-bad" class="cursor-pointer px-2 py-1 block">× かなり疲れ</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 対応の結果 -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-3">📌 対応の結果</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <div class="radio-emoji">
+                                <input type="radio" name="responseResult" value="うまく対応できた" id="response-good">
+                                <label for="response-good" class="cursor-pointer px-2 py-1 block">✨ うまく対応できた</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="responseResult" value="うまく対応できなかった" id="response-bad">
+                                <label for="response-bad" class="cursor-pointer px-2 py-1 block">😢 うまく対応できなかった</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 何があった？ -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-3">🔍 何があった？（複数選択可）</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="登校関係" id="tag-school">
+                                <label for="tag-school" class="cursor-pointer px-2 py-1 block">🏫 登校関係</label>
+                            </div>
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="癇癪・パニック・回避行動" id="tag-panic">
+                                <label for="tag-panic" class="cursor-pointer px-2 py-1 block">💥 癇癪・パニック</label>
+                            </div>
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="きょうだい関係" id="tag-sibling">
+                                <label for="tag-sibling" class="cursor-pointer px-2 py-1 block">👨‍👩‍👧‍👦 きょうだい関係</label>
+                            </div>
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="学習" id="tag-study">
+                                <label for="tag-study" class="cursor-pointer px-2 py-1 block">📚 学習</label>
+                            </div>
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="外出" id="tag-outing">
+                                <label for="tag-outing" class="cursor-pointer px-2 py-1 block">🚶 外出</label>
+                            </div>
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="その他" id="tag-other-simple">
+                                <label for="tag-other-simple" class="cursor-pointer px-2 py-1 block">📌 その他</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 一言メモ -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-2">✏️ 一言メモ（任意）</label>
+                        <textarea id="simpleNote" rows="3" placeholder="例：午前中だけ登校できました" class="w-full"></textarea>
+                    </div>
+                </div>
+
+                <!-- 詳細記録モード -->
+                <div id="detailed-mode-fields" style="display: none;">
+                    <!-- 子どもの様子 -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-3">😊 子どもの様子</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <div class="radio-emoji">
+                                <input type="radio" name="childMoodDetailed" value="◎" id="child-excellent-d">
+                                <label for="child-excellent-d" class="cursor-pointer px-2 py-1 block">◎ とても良い</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="childMoodDetailed" value="○" id="child-good-d">
+                                <label for="child-good-d" class="cursor-pointer px-2 py-1 block">○ 良い</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="childMoodDetailed" value="△" id="child-fair-d">
+                                <label for="child-fair-d" class="cursor-pointer px-2 py-1 block">△ 普通</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="childMoodDetailed" value="×" id="child-bad-d">
+                                <label for="child-bad-d" class="cursor-pointer px-2 py-1 block">× 良くない</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- あなたの余裕 -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-3">💪 あなたの余裕</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <div class="radio-emoji">
+                                <input type="radio" name="parentCapacityDetailed" value="◎" id="parent-excellent-d">
+                                <label for="parent-excellent-d" class="cursor-pointer px-2 py-1 block">◎ 余裕あり</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="parentCapacityDetailed" value="○" id="parent-good-d">
+                                <label for="parent-good-d" class="cursor-pointer px-2 py-1 block">○ まあまあ</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="parentCapacityDetailed" value="△" id="parent-fair-d">
+                                <label for="parent-fair-d" class="cursor-pointer px-2 py-1 block">△ 少し疲れ</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="parentCapacityDetailed" value="×" id="parent-bad-d">
+                                <label for="parent-bad-d" class="cursor-pointer px-2 py-1 block">× かなり疲れ</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 対応の結果 -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-3">📌 対応の結果</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <div class="radio-emoji">
+                                <input type="radio" name="responseResultDetailed" value="うまく対応できた" id="response-good-d">
+                                <label for="response-good-d" class="cursor-pointer px-2 py-1 block">✨ うまく対応できた</label>
+                            </div>
+                            <div class="radio-emoji">
+                                <input type="radio" name="responseResultDetailed" value="うまく対応できなかった" id="response-bad-d">
+                                <label for="response-bad-d" class="cursor-pointer px-2 py-1 block">😢 うまく対応できなかった</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 今日の出来事 -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-2">📝 今日の出来事</label>
+                        <textarea id="detailedEvent" rows="5" placeholder="例：朝7時に起こすと、いつもより落ち着いた様子で起きてきた。..." class="w-full"></textarea>
+                    </div>
+
+                    <!-- 気づき・メモ -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-2">💡 気づき・メモ（任意）</label>
+                        <textarea id="detailedInsight" rows="3" placeholder="例：前日に予定を伝えておいたことが良かったのかもしれない" class="w-full"></textarea>
+                    </div>
+
+                    <!-- タグ -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-semibold mb-3">🏷️ タグ（複数選択可）</label>
+                        <div class="flex gap-2 flex-wrap">
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="学校関係" id="tag-school-d">
+                                <label for="tag-school-d" class="cursor-pointer px-2 py-1 block">🏫 学校関係</label>
+                            </div>
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="体調面" id="tag-health">
+                                <label for="tag-health" class="cursor-pointer px-2 py-1 block">🏥 体調面</label>
+                            </div>
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="対人関係" id="tag-relationship">
+                                <label for="tag-relationship" class="cursor-pointer px-2 py-1 block">👥 対人関係</label>
+                            </div>
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="家族" id="tag-family">
+                                <label for="tag-family" class="cursor-pointer px-2 py-1 block">👨‍👩‍👧 家族</label>
+                            </div>
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="進捗" id="tag-progress">
+                                <label for="tag-progress" class="cursor-pointer px-2 py-1 block">📈 進捗</label>
+                            </div>
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="停滞" id="tag-stagnation">
+                                <label for="tag-stagnation" class="cursor-pointer px-2 py-1 block">📉 停滞</label>
+                            </div>
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="トラブル" id="tag-trouble">
+                                <label for="tag-trouble" class="cursor-pointer px-2 py-1 block">⚠️ トラブル</label>
+                            </div>
+                            <div class="checkbox-tag">
+                                <input type="checkbox" value="療育放デイ等" id="tag-therapy">
+                                <label for="tag-therapy" class="cursor-pointer px-2 py-1 block">🏢 療育放デイ等</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 保存ボタン -->
+                <div class="flex gap-4 justify-center mt-8">
+                    <button type="submit" class="btn-primary">
+                        💾 保存する
+                    </button>
+                    <button type="button" onclick="clearForm()" class="btn-secondary">
+                        🔄 クリア
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ダッシュボードセクション -->
+        <section id="section-dashboard" class="card p-8" style="display: none;">
+            <h2 class="text-2xl font-bold mb-6 text-center">📊 ダッシュボード</h2>
+            
+            <!-- 統計情報 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="p-6 rounded-2xl text-center" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                    <div class="text-sm text-gray-700 mb-1">総記録数</div>
+                    <div class="text-4xl font-bold" id="stat-total">0</div>
+                </div>
+                <div class="p-6 rounded-2xl text-center" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                    <div class="text-sm text-gray-700 mb-1">過去7日間</div>
+                    <div class="text-4xl font-bold" id="stat-week">0</div>
+                </div>
+                <div class="p-6 rounded-2xl text-center" style="background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);">
+                    <div class="text-sm text-gray-700 mb-1">今月</div>
+                    <div class="text-4xl font-bold" id="stat-month">0</div>
+                </div>
+            </div>
+
+            <!-- モード別統計 -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-3">記録タイプ別</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100">
+                        <div class="text-sm text-gray-700">😊 簡易記録</div>
+                        <div class="text-3xl font-bold text-blue-600" id="stat-simple">0</div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-gradient-to-r from-purple-50 to-purple-100">
+                        <div class="text-sm text-gray-700">📝 詳細記録</div>
+                        <div class="text-3xl font-bold text-purple-600" id="stat-detailed">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近の記録 -->
+            <div>
+                <h3 class="text-lg font-semibold mb-3" id="recent-title">最近の記録</h3>
+                <div id="recentRecords" class="space-y-3">
+                    <!-- JavaScriptで動的生成 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 記録一覧セクション -->
+        <section id="section-list" class="card p-8" style="display: none;">
+            <h2 class="text-2xl font-bold mb-6 text-center">📋 記録一覧</h2>
+            
+            <!-- フィルター -->
+            <div class="mb-4 flex gap-3 flex-wrap justify-center">
+                <select id="filterMode" onchange="renderRecordList()" class="px-4 py-2 border-2 border-gray-200 rounded-xl">
+                    <option value="all">すべて</option>
+                    <option value="simple">簡易記録のみ</option>
+                    <option value="detailed">詳細記録のみ</option>
+                </select>
+                <select id="filterResponse" onchange="renderRecordList()" class="px-4 py-2 border-2 border-gray-200 rounded-xl">
+                    <option value="all">対応結果：すべて</option>
+                    <option value="うまく対応できた">✨ うまく対応できた</option>
+                    <option value="うまく対応できなかった">😢 うまく対応できなかった</option>
+                </select>
+                <select id="filterTag" onchange="renderRecordList()" class="px-4 py-2 border-2 border-gray-200 rounded-xl">
+                    <option value="all">タグ：すべて</option>
+                </select>
+            </div>
+
+            <div id="recordList" class="space-y-3">
+                <!-- JavaScriptで動的生成 -->
+            </div>
+        </section>
+
+        <!-- エクスポートセクション -->
+        <section id="section-export" class="card p-8" style="display: none;">
+            <h2 class="text-2xl font-bold mb-6 text-center">💾 データのエクスポート</h2>
+            
+            <!-- Gem④との連携 -->
+            <div class="mb-8 p-6 rounded-2xl" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                <h3 class="text-xl font-bold mb-3">📬 Gem④との連携</h3>
+                <p class="text-gray-700 mb-4">記録をテキストファイルでエクスポートして、Gem④にアップロードすることで、月1回の詳細な振り返りと分析ができます。</p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- テキストエクスポート（推奨） -->
+                <div class="p-6 rounded-2xl bg-white border-2 border-purple-200">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-3xl">📄</span>
+                        <h3 class="text-xl font-bold">テキストエクスポート（推奨）</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">すべての記録をテキスト形式でエクスポート。Gem④にアップロードして月1回の振り返りに使用します。</p>
+                    <button onclick="exportText()" class="btn-primary w-full">
+                        📄 テキストファイルをダウンロード
+                    </button>
+                </div>
+
+                <!-- 期間指定エクスポート -->
+                <div class="p-6 rounded-2xl bg-white border-2 border-purple-200">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-3xl">📅</span>
+                        <h3 class="text-xl font-bold">期間指定エクスポート</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">特定期間の記録のみをエクスポート。月次レポートの作成に便利です。</p>
+                    <div class="mb-4 grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">開始日</label>
+                            <input type="date" id="exportStartDate" class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">終了日</label>
+                            <input type="date" id="exportEndDate" class="w-full px-3 py-2 border-2 border-gray-200 rounded-xl">
+                        </div>
+                    </div>
+                    <button onclick="exportDateRange()" class="btn-primary w-full">
+                        📅 期間を指定してダウンロード
+                    </button>
+                </div>
+
+                <!-- バックアップと復元 -->
+                <div class="p-6 rounded-2xl bg-white border-2 border-gray-200">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-3xl">💾</span>
+                        <h3 class="text-xl font-bold">バックアップと復元</h3>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <button onclick="showDataConfirmation()" class="w-full px-4 py-3 rounded-xl text-white font-semibold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            📊 保存データを確認
+                        </button>
+                        <button onclick="exportJSON()" class="w-full px-4 py-3 rounded-xl bg-green-500 text-white font-semibold hover:bg-green-600">
+                            💾 JSONバックアップ
+                        </button>
+                        <button onclick="importJSON()" class="w-full px-4 py-3 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-600">
+                            📥 データをインポート
+                        </button>
+                        <button onclick="deleteAllRecords()" class="w-full px-4 py-3 rounded-xl bg-red-400 text-white font-semibold hover:bg-red-500">
+                            🗑️ すべて削除
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4 p-4 bg-yellow-50 rounded-xl border-2 border-yellow-200">
+                        <div class="flex items-start gap-2">
+                            <span class="text-2xl">⚠️</span>
+                            <div class="text-sm text-gray-700">
+                                <strong>重要:</strong> ブラウザのデータクリアやキャッシュ削除で記録が消える可能性があります。定期的にJSONバックアップをダウンロードして保管してください。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gem④との連携方法 -->
+            <div class="mt-8 p-6 rounded-2xl bg-white border-2 border-blue-200">
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="text-3xl">📖</span>
+                    <h3 class="text-xl font-bold">Gem④との連携方法</h3>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">1</div>
+                        <div>
+                            <strong>記録を蓄積する</strong>
+                            <p class="text-sm text-gray-600">日々の出来事、気づき、タグを記録していきます。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">2</div>
+                        <div>
+                            <strong>月1回、テキストエクスポート</strong>
+                            <p class="text-sm text-gray-600">上記の「テキストファイルをダウンロード」をクリック。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">3</div>
+                        <div>
+                            <strong>Gem④にアップロード</strong>
+                            <p class="text-sm text-gray-600">Gem④を開き、ダウンロードしたテキストファイルをアップロード。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">4</div>
+                        <div>
+                            <strong>振り返りと分析</strong>
+                            <p class="text-sm text-gray-600">Gem④が記録を分析し、パターンの抽出、進捗の可視化、来月の目標を提案します。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 現在の記録状況 -->
+            <div class="mt-8 p-6 rounded-2xl" style="background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-3xl">📊</span>
+                    <h3 class="text-xl font-bold">現在の記録状況</h3>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <div class="text-sm text-gray-700">総記録数</div>
+                        <div class="text-4xl font-bold text-purple-600" id="export-stat-total">0</div>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-700">最古の記録</div>
+                        <div class="text-lg font-bold text-purple-600" id="export-stat-oldest">-</div>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-700">最新の記録</div>
+                        <div class="text-lg font-bold text-purple-600" id="export-stat-newest">-</div>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-700">記録期間</div>
+                        <div class="text-lg font-bold text-purple-600" id="export-stat-days">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 非表示のファイル入力 -->
+            <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="handleImportFile(event)">
+        </section>
+
+    </div>
+
+    <!-- 詳細表示モーダル -->
+    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4" style="z-index: 1000;" onclick="closeDetailModal()">
+        <div class="card max-w-2xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-2xl font-bold">📖 記録詳細</h3>
+                    <button onclick="closeDetailModal()" class="text-gray-500 hover:text-gray-700 text-3xl leading-none">
+                        ×
+                    </button>
+                </div>
+                <div id="modalContent">
+                    <!-- JavaScriptで動的生成 -->
+                </div>
+                <div class="mt-6 flex gap-3">
+                    <button onclick="deleteCurrentRecord()" class="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition">
+                        🗑️ 削除
+                    </button>
+                    <button onclick="closeDetailModal()" class="btn-secondary">
+                        閉じる
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // グローバル状態
-        let state = {
-            records: [],
-            view: 'dashboard',
-            showAddForm: false,
-            selectedRecord: null,
-            showExportOptions: false,
-            searchQuery: '',
-            filterTags: [],
-            newRecord: {
-                date: new Date().toISOString().split('T')[0],
-                situation: '',
-                insights: '',
-                tags: []
-            }
-        };
+        // グローバル変数
+        let records = [];
+        let currentRecordMode = 'simple';
+        let currentRecordId = null;
 
-        const tagOptions = [
-            '感覚過敏', '対人関係', '学習面', '不安', '成功体験',
-            '失敗体験', '環境調整', '声かけ', '朝の困難', '夜の困難',
-            '食事', '睡眠', '外出', '家族関係', '進歩', '停滞', '療育放デイ等'
-        ];
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('recordDate').valueAsDate = new Date();
+            loadRecords();
+            updateDashboard();
+            updateFilterTags();
+        });
 
-        // ローカルストレージから読み込み
-        function loadData() {
-            const saved = localStorage.getItem('daily_records');
-            if (saved) {
-                try {
-                    state.records = JSON.parse(saved);
-                    // 日付でソート（新しい順）
-                    state.records.sort((a, b) => new Date(b.date) - new Date(a.date));
-                } catch (e) {
-                    console.error('データ読み込みエラー:', e);
-                }
-            }
-        }
-
-        // ローカルストレージに保存
-        function saveData() {
-            localStorage.setItem('daily_records', JSON.stringify(state.records));
-        }
-
-        // 統計計算
-        function getStats() {
-            const total = state.records.length;
-            const weekAgo = new Date();
-            weekAgo.setDate(weekAgo.getDate() - 7);
-            const last7Days = state.records.filter(r => new Date(r.date) >= weekAgo).length;
-            
-            // タグ別集計
-            const tagCounts = {};
-            state.records.forEach(r => {
-                r.tags.forEach(tag => {
-                    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-                });
+        // セクション切り替え
+        function showSection(sectionName) {
+            const sections = ['record', 'list', 'dashboard', 'export'];
+            sections.forEach(s => {
+                document.getElementById('section-' + s).style.display = 'none';
+                const btn = document.getElementById('btn-' + s);
+                btn.classList.remove('active');
             });
             
-            return { total, last7Days, tagCounts };
+            document.getElementById('section-' + sectionName).style.display = 'block';
+            document.getElementById('btn-' + sectionName).classList.add('active');
+            
+            if (sectionName === 'list') {
+                renderRecordList();
+            } else if (sectionName === 'dashboard') {
+                updateDashboard();
+            } else if (sectionName === 'export') {
+                updateExportStats();
+            }
         }
 
-        // 記録追加
-        function addRecord() {
-            if (!state.newRecord.situation.trim()) {
-                alert('状況を入力してください');
-                return;
-            }
+        // 記録モード切り替え
+        function setRecordMode(mode) {
+            currentRecordMode = mode;
+            
+            document.getElementById('mode-simple').classList.toggle('active', mode === 'simple');
+            document.getElementById('mode-detailed').classList.toggle('active', mode === 'detailed');
+            
+            document.getElementById('simple-mode-fields').style.display = mode === 'simple' ? 'block' : 'none';
+            document.getElementById('detailed-mode-fields').style.display = mode === 'detailed' ? 'block' : 'none';
+        }
 
-            const record = {
-                ...state.newRecord,
+        // フォームのクリア
+        function clearForm() {
+            document.getElementById('recordForm').reset();
+            document.getElementById('recordDate').valueAsDate = new Date();
+            setRecordMode('simple');
+        }
+
+        // 記録の保存
+        function saveRecord(event) {
+            event.preventDefault();
+            
+            const date = document.getElementById('recordDate').value;
+            let record = {
                 id: Date.now(),
+                date: date,
+                mode: currentRecordMode,
                 createdAt: new Date().toISOString()
             };
-
-            state.records = [record, ...state.records];
-            saveData();
-            state.showAddForm = false;
-            state.newRecord = {
-                date: new Date().toISOString().split('T')[0],
-                situation: '',
-                insights: '',
-                tags: []
-            };
-            render();
-        }
-
-        // タグ切り替え
-        function toggleTag(tag) {
-            const tags = state.newRecord.tags;
-            if (tags.includes(tag)) {
-                state.newRecord.tags = tags.filter(t => t !== tag);
+            
+            if (currentRecordMode === 'simple') {
+                const childMood = document.querySelector('input[name="childMood"]:checked');
+                const parentCapacity = document.querySelector('input[name="parentCapacity"]:checked');
+                const responseResult = document.querySelector('input[name="responseResult"]:checked');
+                
+                record.childMood = childMood ? childMood.value : '';
+                record.parentCapacity = parentCapacity ? parentCapacity.value : '';
+                record.responseResult = responseResult ? responseResult.value : '';
+                
+                const whatHappened = [];
+                document.querySelectorAll('#simple-mode-fields .checkbox-tag input[type="checkbox"]:checked').forEach(cb => {
+                    whatHappened.push(cb.value);
+                });
+                record.whatHappened = whatHappened;
+                record.note = document.getElementById('simpleNote').value.trim();
+                
             } else {
-                state.newRecord.tags = [...tags, tag];
+                const childMoodD = document.querySelector('input[name="childMoodDetailed"]:checked');
+                const parentCapacityD = document.querySelector('input[name="parentCapacityDetailed"]:checked');
+                const responseResultD = document.querySelector('input[name="responseResultDetailed"]:checked');
+                
+                record.childMood = childMoodD ? childMoodD.value : '';
+                record.parentCapacity = parentCapacityD ? parentCapacityD.value : '';
+                record.responseResult = responseResultD ? responseResultD.value : '';
+                record.event = document.getElementById('detailedEvent').value.trim();
+                record.insight = document.getElementById('detailedInsight').value.trim();
+                
+                const tags = [];
+                document.querySelectorAll('#detailed-mode-fields .checkbox-tag input[type="checkbox"]:checked').forEach(cb => {
+                    tags.push(cb.value);
+                });
+                record.tags = tags;
             }
-            // render()を呼ばず、タグボタンのスタイルだけ更新
-            updateTagButtons();
+            
+            records.push(record);
+            saveRecords();
+            
+            alert('✨ 記録を保存しました！');
+            clearForm();
+            updateDashboard();
+            updateFilterTags();
         }
 
-        // タグボタンのスタイルのみ更新（新規追加）
-        function updateTagButtons() {
-            const buttons = document.querySelectorAll('[data-tag-button]');
-            buttons.forEach(button => {
-                const tag = button.getAttribute('data-tag');
-                if (state.newRecord.tags.includes(tag)) {
-                    button.className = 'px-3 py-1 text-sm rounded-full transition-colors bg-indigo-600 text-white';
-                } else {
-                    button.className = 'px-3 py-1 text-sm rounded-full transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300';
+        // LocalStorageへの保存
+        function saveRecords() {
+            localStorage.setItem('dailyRecords', JSON.stringify(records));
+        }
+
+        // LocalStorageからの読み込み
+        function loadRecords() {
+            const saved = localStorage.getItem('dailyRecords');
+            if (saved) {
+                try {
+                    records = JSON.parse(saved);
+                } catch (e) {
+                    console.error('データの読み込みに失敗しました', e);
+                    records = [];
                 }
+            }
+        }
+
+        // ダッシュボードの更新
+        function updateDashboard() {
+            const now = new Date();
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            
+            const stats = {
+                total: records.length,
+                week: records.filter(r => new Date(r.date) >= weekAgo).length,
+                month: records.filter(r => new Date(r.date) >= monthStart).length,
+                simple: records.filter(r => r.mode === 'simple').length,
+                detailed: records.filter(r => r.mode === 'detailed').length
+            };
+            
+            document.getElementById('stat-total').textContent = stats.total;
+            document.getElementById('stat-week').textContent = stats.week;
+            document.getElementById('stat-month').textContent = stats.month;
+            document.getElementById('stat-simple').textContent = stats.simple;
+            document.getElementById('stat-detailed').textContent = stats.detailed;
+            
+            renderRecentRecords();
+        }
+
+        // タグフィルターの更新
+        function updateFilterTags() {
+            const select = document.getElementById('filterTag');
+            const allTags = new Set();
+            
+            records.forEach(record => {
+                if (record.mode === 'simple' && record.whatHappened) {
+                    record.whatHappened.forEach(tag => allTags.add(tag));
+                } else if (record.mode === 'detailed' && record.tags) {
+                    record.tags.forEach(tag => allTags.add(tag));
+                }
+            });
+            
+            // 既存のオプションをクリア（最初のオプションは残す）
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            // タグを追加
+            Array.from(allTags).sort().forEach(tag => {
+                const option = document.createElement('option');
+                option.value = tag;
+                option.textContent = tag;
+                select.appendChild(option);
             });
         }
 
-        // フィルタータグ切り替え
-        function toggleFilterTag(tag) {
-            const tags = state.filterTags;
-            if (tags.includes(tag)) {
-                state.filterTags = tags.filter(t => t !== tag);
-            } else {
-                state.filterTags = [...tags, tag];
+        // 最近の記録を表示
+        function renderRecentRecords() {
+            const container = document.getElementById('recentRecords');
+            const titleElement = document.getElementById('recent-title');
+            
+            if (records.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center">まだ記録がありません</p>';
+                titleElement.textContent = '最近の記録';
+                return;
             }
-            render();
+            
+            const recent = [...records].sort((a, b) => b.id - a.id).slice(0, 5);
+            titleElement.textContent = `最近の記録（${recent.length}件）`;
+            
+            container.innerHTML = recent.map(record => {
+                const preview = record.mode === 'simple' 
+                    ? (record.note || record.whatHappened?.join(', ') || '記録なし')
+                    : (record.event || '記録なし');
+                    
+                return `
+                    <div class="record-card" onclick="showDetailModal(${record.id})">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-semibold text-lg">${record.date}</span>
+                            <span class="badge ${record.mode === 'simple' ? 'badge-simple' : 'badge-detailed'}">
+                                ${record.mode === 'simple' ? '😊 簡易' : '📝 詳細'}
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-sm line-clamp-2">${preview.substring(0, 50)}${preview.length > 50 ? '...' : ''}</p>
+                        ${record.childMood ? `<div class="mt-2 text-sm"><span class="font-semibold">😊</span> ${record.childMood} <span class="font-semibold ml-3">💪</span> ${record.parentCapacity}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
         }
 
-        // 記録フィルタリング
-        function getFilteredRecords() {
-            let filtered = [...state.records];
+        // 記録一覧の表示
+        function renderRecordList() {
+            const container = document.getElementById('recordList');
+            const modeFilter = document.getElementById('filterMode').value;
+            const responseFilter = document.getElementById('filterResponse').value;
+            const tagFilter = document.getElementById('filterTag').value;
             
-            // 検索クエリでフィルタ
-            if (state.searchQuery.trim()) {
-                const query = state.searchQuery.toLowerCase();
-                filtered = filtered.filter(r => 
-                    r.situation.toLowerCase().includes(query) ||
-                    (r.insights && r.insights.toLowerCase().includes(query)) ||
-                    r.date.includes(query)
-                );
+            let filtered = records;
+            
+            // モードでフィルター
+            if (modeFilter !== 'all') {
+                filtered = filtered.filter(r => r.mode === modeFilter);
             }
             
-            // タグでフィルタ
-            if (state.filterTags.length > 0) {
-                filtered = filtered.filter(r => 
-                    state.filterTags.some(tag => r.tags.includes(tag))
-                );
+            // 対応結果でフィルター
+            if (responseFilter !== 'all') {
+                filtered = filtered.filter(r => r.responseResult === responseFilter);
             }
             
-            return filtered;
+            // タグでフィルター
+            if (tagFilter !== 'all') {
+                filtered = filtered.filter(r => {
+                    if (r.mode === 'simple' && r.whatHappened) {
+                        return r.whatHappened.includes(tagFilter);
+                    } else if (r.mode === 'detailed' && r.tags) {
+                        return r.tags.includes(tagFilter);
+                    }
+                    return false;
+                });
+            }
+            
+            filtered.sort((a, b) => b.id - a.id);
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center">該当する記録がありません</p>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(record => {
+                const preview = record.mode === 'simple' 
+                    ? (record.note || record.whatHappened?.join(', ') || '記録なし')
+                    : (record.event || '記録なし');
+                    
+                return `
+                    <div class="record-card" onclick="showDetailModal(${record.id})">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-semibold text-lg">${record.date}</span>
+                            <span class="badge ${record.mode === 'simple' ? 'badge-simple' : 'badge-detailed'}">
+                                ${record.mode === 'simple' ? '😊 簡易記録' : '📝 詳細記録'}
+                            </span>
+                        </div>
+                        ${record.childMood ? `<div class="mb-2 text-sm"><span class="font-semibold">😊</span> ${record.childMood} <span class="font-semibold ml-3">💪</span> ${record.parentCapacity} <span class="font-semibold ml-3">📌</span> ${record.responseResult}</div>` : ''}
+                        <p class="text-gray-700">${preview.substring(0, 100)}${preview.length > 100 ? '...' : ''}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 詳細モーダル表示
+        function showDetailModal(recordId) {
+            const record = records.find(r => r.id === recordId);
+            if (!record) return;
+            
+            currentRecordId = recordId;
+            
+            let content = `
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl font-bold">${record.date}</span>
+                        <span class="badge ${record.mode === 'simple' ? 'badge-simple' : 'badge-detailed'}">
+                            ${record.mode === 'simple' ? '😊 簡易記録' : '📝 詳細記録'}
+                        </span>
+                    </div>
+                    
+                    ${record.childMood ? `
+                        <div class="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-purple-50">
+                            <div class="mb-2"><span class="font-semibold">😊 子どもの様子:</span> ${record.childMood}</div>
+                            <div class="mb-2"><span class="font-semibold">💪 あなたの余裕:</span> ${record.parentCapacity}</div>
+                            <div><span class="font-semibold">📌 対応の結果:</span> ${record.responseResult}</div>
+                        </div>
+                    ` : ''}
+            `;
+            
+            if (record.mode === 'simple') {
+                if (record.whatHappened && record.whatHappened.length > 0) {
+                    content += `
+                        <div>
+                            <h4 class="font-semibold mb-2">🔍 何があった？</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${record.whatHappened.map(w => `<span class="badge badge-simple">${w}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                if (record.note) {
+                    content += `
+                        <div>
+                            <h4 class="font-semibold mb-2">✏️ 一言メモ</h4>
+                            <p class="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-xl">${record.note}</p>
+                        </div>
+                    `;
+                }
+            } else {
+                if (record.event) {
+                    content += `
+                        <div>
+                            <h4 class="font-semibold mb-2">📝 今日の出来事</h4>
+                            <p class="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-xl">${record.event}</p>
+                        </div>
+                    `;
+                }
+                if (record.insight) {
+                    content += `
+                        <div>
+                            <h4 class="font-semibold mb-2">💡 気づき・メモ</h4>
+                            <p class="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-xl">${record.insight}</p>
+                        </div>
+                    `;
+                }
+                if (record.tags && record.tags.length > 0) {
+                    content += `
+                        <div>
+                            <h4 class="font-semibold mb-2">🏷️ タグ</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${record.tags.map(tag => `<span class="badge badge-detailed">${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            content += `
+                <div class="text-xs text-gray-500 mt-4">
+                    記録日時: ${new Date(record.createdAt).toLocaleString('ja-JP')}
+                </div>
+            `;
+            
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('detailModal').classList.remove('hidden');
+            document.getElementById('detailModal').classList.add('flex');
+        }
+
+        // 詳細モーダルを閉じる
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            document.getElementById('detailModal').classList.remove('flex');
+            currentRecordId = null;
+        }
+
+        // 記録の削除
+        function deleteCurrentRecord() {
+            if (!currentRecordId) return;
+            if (!confirm('この記録を削除しますか？')) return;
+            
+            records = records.filter(r => r.id !== currentRecordId);
+            saveRecords();
+            closeDetailModal();
+            renderRecordList();
+            updateDashboard();
+            updateFilterTags();
+            alert('🗑️ 記録を削除しました');
         }
 
         // JSONエクスポート
         function exportJSON() {
-            if (state.records.length === 0) {
-                alert('エクスポートするデータがありません');
-                return;
-            }
-            const dataStr = JSON.stringify(state.records, null, 2);
+            const dataStr = JSON.stringify(records, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `日々の記録_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `daily-records-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
             URL.revokeObjectURL(url);
-            alert('JSONバックアップをダウンロードしました');
         }
 
         // テキストエクスポート（Gem④用）
         function exportText() {
-            if (state.records.length === 0) {
-                alert('エクスポートするデータがありません');
+            if (records.length === 0) {
+                alert('記録がありません');
                 return;
             }
             
-            let text = `# 日々の記録\n`;
-            text += `作成日: ${new Date().toLocaleDateString('ja-JP')}\n`;
-            text += `総記録数: ${state.records.length}\n\n`;
-            text += `---\n\n`;
+            const sorted = [...records].sort((a, b) => new Date(a.date) - new Date(b.date));
             
-            state.records.forEach((r, index) => {
-                text += `## 記録 ${index + 1}: ${r.date}\n\n`;
+            let text = '# 日々の記録（Gem④分析用）\n\n';
+            text += `期間: ${sorted[0].date} ～ ${sorted[sorted.length - 1].date}\n`;
+            text += `総記録数: ${records.length}件\n`;
+            text += `- 簡易記録: ${records.filter(r => r.mode === 'simple').length}件\n`;
+            text += `- 詳細記録: ${records.filter(r => r.mode === 'detailed').length}件\n\n`;
+            text += '=' .repeat(60) + '\n\n';
+            
+            sorted.forEach((record, index) => {
+                text += `【記録 ${index + 1}】 ${record.date}\n`;
+                text += '-'.repeat(40) + '\n\n';
                 
-                if (r.tags.length > 0) {
-                    text += `**タグ:** ${r.tags.join(', ')}\n\n`;
+                // 共通項目
+                if (record.childMood) {
+                    text += `子どもの様子: ${record.childMood}\n`;
+                    text += `保護者の余裕: ${record.parentCapacity}\n`;
+                    text += `対応の結果: ${record.responseResult}\n\n`;
                 }
                 
-                text += `**出来事:**\n${r.situation}\n\n`;
-                
-                if (r.insights) {
-                    text += `**気づき:**\n${r.insights}\n\n`;
+                // モード別の内容
+                if (record.mode === 'simple') {
+                    if (record.whatHappened && record.whatHappened.length > 0) {
+                        text += `【何があったか】\n`;
+                        record.whatHappened.forEach(item => {
+                            text += `- ${item}\n`;
+                        });
+                        text += '\n';
+                    }
+                    
+                    if (record.note) {
+                        text += `【メモ】\n${record.note}\n\n`;
+                    }
+                } else {
+                    if (record.event) {
+                        text += `【出来事】\n${record.event}\n\n`;
+                    }
+                    
+                    if (record.insight) {
+                        text += `【気づき】\n${record.insight}\n\n`;
+                    }
+                    
+                    if (record.tags && record.tags.length > 0) {
+                        text += `【タグ】${record.tags.join(', ')}\n\n`;
+                    }
                 }
                 
-                text += `---\n\n`;
+                text += '\n';
             });
+            
+            text += '=' .repeat(60) + '\n';
+            text += `エクスポート日時: ${new Date().toLocaleString('ja-JP')}\n`;
             
             const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `日々の記録_Gem④用_${new Date().toISOString().split('T')[0]}.txt`;
-            a.click();
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `記録_${new Date().toISOString().split('T')[0]}.txt`;
+            link.click();
             URL.revokeObjectURL(url);
-            alert('テキストファイルをダウンロードしました\n\nこのファイルをGem④にアップロードして、月1回の振り返りに使用してください。');
         }
 
-        // 期間指定エクスポート（Gem④用）
-        function exportPeriod() {
-            const startDate = prompt('開始日を入力してください（例: 2025-11-01）');
-            if (!startDate) return;
+        // データ確認
+        function showDataConfirmation() {
+            const dataSize = new Blob([JSON.stringify(records)]).size;
+            const dataSizeKB = (dataSize / 1024).toFixed(2);
             
-            const endDate = prompt('終了日を入力してください（例: 2025-11-30）');
-            if (!endDate) return;
+            const stats = {
+                total: records.length,
+                simple: records.filter(r => r.mode === 'simple').length,
+                detailed: records.filter(r => r.mode === 'detailed').length
+            };
             
-            const filtered = state.records.filter(r => {
-                const recordDate = new Date(r.date);
-                return recordDate >= new Date(startDate) && recordDate <= new Date(endDate);
-            });
+            const message = `
+保存データ情報:
+
+総記録数: ${stats.total}件
+- 簡易記録: ${stats.simple}件
+- 詳細記録: ${stats.detailed}件
+
+データサイズ: ${dataSizeKB} KB
+
+最古の記録: ${records.length > 0 ? new Date(Math.min(...records.map(r => r.id))).toLocaleDateString('ja-JP') : 'なし'}
+最新の記録: ${records.length > 0 ? new Date(Math.max(...records.map(r => r.id))).toLocaleDateString('ja-JP') : 'なし'}
+            `;
+            
+            alert(message);
+        }
+
+        // 期間指定エクスポート
+        function exportDateRange() {
+            const startDate = document.getElementById('exportStartDate').value;
+            const endDate = document.getElementById('exportEndDate').value;
+            
+            if (!startDate || !endDate) {
+                alert('開始日と終了日を選択してください');
+                return;
+            }
+            
+            const filtered = records.filter(r => r.date >= startDate && r.date <= endDate);
             
             if (filtered.length === 0) {
                 alert('指定期間の記録がありません');
                 return;
             }
             
-            let text = `# 日々の記録（${startDate} 〜 ${endDate}）\n`;
-            text += `作成日: ${new Date().toLocaleDateString('ja-JP')}\n`;
-            text += `記録数: ${filtered.length}\n\n`;
-            text += `---\n\n`;
+            const sorted = filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
             
-            filtered.forEach((r, index) => {
-                text += `## ${r.date}\n\n`;
+            let text = '# 日々の記録（期間指定エクスポート）\n\n';
+            text += `期間: ${startDate} ～ ${endDate}\n`;
+            text += `記録数: ${sorted.length}件\n`;
+            text += `- 簡易記録: ${sorted.filter(r => r.mode === 'simple').length}件\n`;
+            text += `- 詳細記録: ${sorted.filter(r => r.mode === 'detailed').length}件\n\n`;
+            text += '=' .repeat(60) + '\n\n';
+            
+            sorted.forEach((record, index) => {
+                text += `【記録 ${index + 1}】 ${record.date}\n`;
+                text += '-'.repeat(40) + '\n\n';
                 
-                if (r.tags.length > 0) {
-                    text += `**タグ:** ${r.tags.join(', ')}\n\n`;
+                if (record.childMood) {
+                    text += `子どもの様子: ${record.childMood}\n`;
+                    text += `保護者の余裕: ${record.parentCapacity}\n`;
+                    text += `対応の結果: ${record.responseResult}\n\n`;
                 }
                 
-                text += `**出来事:**\n${r.situation}\n\n`;
-                
-                if (r.insights) {
-                    text += `**気づき:**\n${r.insights}\n\n`;
+                if (record.mode === 'simple') {
+                    if (record.whatHappened && record.whatHappened.length > 0) {
+                        text += `【何があったか】\n`;
+                        record.whatHappened.forEach(item => {
+                            text += `- ${item}\n`;
+                        });
+                        text += '\n';
+                    }
+                    if (record.note) {
+                        text += `【メモ】\n${record.note}\n\n`;
+                    }
+                } else {
+                    if (record.event) {
+                        text += `【出来事】\n${record.event}\n\n`;
+                    }
+                    if (record.insight) {
+                        text += `【気づき】\n${record.insight}\n\n`;
+                    }
+                    if (record.tags && record.tags.length > 0) {
+                        text += `【タグ】${record.tags.join(', ')}\n\n`;
+                    }
                 }
                 
-                text += `---\n\n`;
+                text += '\n';
             });
+            
+            text += '=' .repeat(60) + '\n';
+            text += `エクスポート日時: ${new Date().toLocaleString('ja-JP')}\n`;
             
             const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `日々の記録_${startDate}_${endDate}.txt`;
-            a.click();
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `記録_${startDate}_${endDate}.txt`;
+            link.click();
             URL.revokeObjectURL(url);
-            alert(`${startDate} 〜 ${endDate} の記録をダウンロードしました`);
         }
 
-        // 保存データ確認（新機能）
-        function checkStorageData() {
-            const saved = localStorage.getItem('daily_records');
+        // JSONインポート
+        function importJSON() {
+            document.getElementById('importFileInput').click();
+        }
+
+        function handleImportFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
             
-            if (!saved || saved === '[]') {
-                alert('📦 保存データの確認\n\n現在、ブラウザに保存されているデータはありません。');
-                return;
-            }
-            
-            try {
-                const data = JSON.parse(saved);
-                const count = data.length;
-                
-                // 記録期間を計算
-                if (count > 0) {
-                    const dates = data.map(r => new Date(r.date)).sort((a, b) => a - b);
-                    const oldestDate = dates[0].toLocaleDateString('ja-JP');
-                    const newestDate = dates[dates.length - 1].toLocaleDateString('ja-JP');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
                     
-                    // データサイズを計算（概算）
-                    const dataSize = new Blob([saved]).size;
-                    const dataSizeKB = (dataSize / 1024).toFixed(2);
-                    
-                    // 最初の5件の日付を表示
-                    const recentDates = data
-                        .sort((a, b) => new Date(b.date) - new Date(a.date))
-                        .slice(0, 5)
-                        .map(r => `  • ${r.date}`)
-                        .join('\n');
-                    
-                    const message = `📦 保存データの確認\n\n` +
-                        `【保存状況】\n` +
-                        `総記録数: ${count}件\n` +
-                        `記録期間: ${oldestDate} 〜 ${newestDate}\n` +
-                        `データサイズ: ${dataSizeKB} KB\n\n` +
-                        `【最近の記録（最大5件）】\n${recentDates}\n\n` +
-                        `【保存場所】\n` +
-                        `ブラウザ: ${navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Safari') ? 'Safari' : navigator.userAgent.includes('Firefox') ? 'Firefox' : 'その他'}\n` +
-                        `LocalStorage キー: daily_records\n\n` +
-                        `【注意】\n` +
-                        `• ブラウザのキャッシュをクリアするとデータが消えます\n` +
-                        `• 定期的にJSONバックアップをダウンロードしてください`;
-                    
-                    if (confirm(message + '\n\n詳細をコンソールに出力しますか？')) {
-                        console.log('=== 保存データ詳細 ===');
-                        console.log('総記録数:', count);
-                        console.log('データサイズ:', dataSizeKB, 'KB');
-                        console.log('最古の記録:', oldestDate);
-                        console.log('最新の記録:', newestDate);
-                        console.log('全データ:', data);
-                        alert('詳細情報をコンソールに出力しました\n\n確認方法:\n1. F12キーを押す\n2. Consoleタブを開く');
+                    if (!Array.isArray(imported)) {
+                        alert('不正なファイル形式です');
+                        return;
                     }
-                } else {
-                    alert('📦 保存データの確認\n\nデータはありますが、記録が0件です。');
+                    
+                    const confirmMsg = `${imported.length}件の記録をインポートします。\n\n既存のデータに追加しますか？\n（キャンセルすると既存データを上書きします）`;
+                    
+                    if (confirm(confirmMsg)) {
+                        // 追加モード
+                        records = records.concat(imported);
+                    } else {
+                        // 上書きモード
+                        records = imported;
+                    }
+                    
+                    saveRecords();
+                    updateDashboard();
+                    updateFilterTags();
+                    alert('インポートが完了しました');
+                } catch (error) {
+                    alert('ファイルの読み込みに失敗しました: ' + error.message);
                 }
-                
-            } catch (e) {
-                alert('❌ エラー\n\n保存データの読み込みに失敗しました。\n\nエラー内容: ' + e.message);
-                console.error('データ確認エラー:', e);
-            }
-        }
-
-        // データインポート
-        function importData() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    try {
-                        const imported = JSON.parse(event.target.result);
-                        
-                        if (!Array.isArray(imported)) {
-                            alert('無効なデータ形式です');
-                            return;
-                        }
-                        
-                        // 重複チェック（IDベース）
-                        const existingIds = new Set(state.records.map(r => r.id));
-                        const newRecords = imported.filter(r => !existingIds.has(r.id));
-                        
-                        if (newRecords.length === 0) {
-                            alert('新しいデータがありません（すべて既存）');
-                            return;
-                        }
-                        
-                        if (confirm(`${newRecords.length}件の新しい記録をインポートしますか？`)) {
-                            state.records = [...state.records, ...newRecords];
-                            state.records.sort((a, b) => new Date(b.date) - new Date(a.date));
-                            saveData();
-                            render();
-                            alert(`${newRecords.length}件の記録をインポートしました`);
-                        }
-                    } catch (e) {
-                        alert('データの読み込みに失敗しました: ' + e.message);
-                    }
-                };
-                reader.readAsText(file);
             };
-            input.click();
+            reader.readAsText(file);
+            
+            // ファイル選択をリセット
+            event.target.value = '';
         }
 
-        // データ全削除
-        function clearAllData() {
-            if (!confirm('すべてのデータを削除しますか？\n\nこの操作は取り消せません。\n事前にバックアップをダウンロードすることをお勧めします。')) {
+        // すべて削除
+        function deleteAllRecords() {
+            if (!confirm('本当にすべての記録を削除しますか？\nこの操作は取り消せません。')) {
                 return;
             }
             
-            if (!confirm('本当に削除しますか？')) {
+            if (!confirm('最終確認：すべての記録が完全に削除されます。\nバックアップは取りましたか？')) {
                 return;
             }
             
-            state.records = [];
-            saveData();
-            render();
-            alert('すべてのデータを削除しました');
+            records = [];
+            saveRecords();
+            updateDashboard();
+            updateFilterTags();
+            alert('すべての記録を削除しました');
         }
 
-        // レンダリング
-        function render() {
-            const stats = getStats();
-            const app = document.getElementById('app');
-
-            app.innerHTML = `
-                <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-                    <!-- ヘッダー -->
-                    <div class="bg-white shadow-sm border-b no-print">
-                        <div class="max-w-7xl mx-auto px-4 py-4">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h1 class="text-2xl font-bold text-gray-900">日々の記録</h1>
-                                    <p class="text-sm text-gray-600">完全プライベート・ローカル保存</p>
-                                </div>
-                                <button onclick="openAddForm()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
-                                    ➕ 新規記録
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ナビ -->
-                    <div class="max-w-7xl mx-auto px-4 py-4 no-print">
-                        <div class="flex gap-2">
-                            <button onclick="changeView('dashboard')" class="px-4 py-2 rounded-lg ${state.view === 'dashboard' ? 'bg-white shadow' : 'bg-white/50'}">
-                                📊 ダッシュボード
-                            </button>
-                            <button onclick="changeView('records')" class="px-4 py-2 rounded-lg ${state.view === 'records' ? 'bg-white shadow' : 'bg-white/50'}">
-                                📝 記録一覧
-                            </button>
-                            <button onclick="changeView('export')" class="px-4 py-2 rounded-lg ${state.view === 'export' ? 'bg-white shadow' : 'bg-white/50'}">
-                                📤 エクスポート
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- メインコンテンツ -->
-                    <div class="max-w-7xl mx-auto px-4 py-6">
-                        ${state.view === 'dashboard' ? renderDashboard(stats) : 
-                          state.view === 'records' ? renderRecords() : 
-                          renderExport()}
-                    </div>
-                </div>
-
-                ${state.showAddForm ? renderAddForm() : ''}
-                ${state.selectedRecord ? renderDetail() : ''}
-            `;
-        }
-
-        function renderDashboard(stats) {
-            return `
-                <div class="space-y-6">
-                    <!-- 統計 -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <div class="text-sm text-gray-600 mb-1">総記録数</div>
-                            <div class="text-3xl font-bold text-indigo-600">${stats.total}</div>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <div class="text-sm text-gray-600 mb-1">過去7日間</div>
-                            <div class="text-3xl font-bold text-green-600">${stats.last7Days}</div>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <div class="text-sm text-gray-600 mb-1">平均（週）</div>
-                            <div class="text-3xl font-bold text-purple-600">${stats.total > 0 ? (stats.last7Days).toFixed(1) : 0}</div>
-                        </div>
-                    </div>
-
-                    <!-- タグ別集計 -->
-                    ${Object.keys(stats.tagCounts).length > 0 ? `
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <h3 class="text-lg font-semibold mb-4">タグ別集計</h3>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                ${Object.entries(stats.tagCounts)
-                                    .sort((a, b) => b[1] - a[1])
-                                    .slice(0, 8)
-                                    .map(([tag, count]) => `
-                                    <div class="p-3 border rounded-lg">
-                                        <div class="text-sm text-gray-600">${tag}</div>
-                                        <div class="text-2xl font-bold text-indigo-600">${count}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-
-                    <!-- 最近の記録 -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="text-lg font-semibold mb-4">
-                            ${state.records.length === 0 ? '最近の記録' : `最近の記録（${Math.min(state.records.length, 5)}件）`}
-                        </h3>
-                        ${state.records.length === 0 ? `
-                            <div class="text-center py-8 text-gray-500">
-                                まだ記録がありません。<br>「新規記録」から始めましょう。
-                            </div>
-                        ` : `
-                            <div class="space-y-3">
-                                ${state.records.slice(0, 5).map(r => `
-                                    <div onclick="openDetail(${r.id})" class="p-4 border rounded-lg hover:bg-indigo-50 cursor-pointer">
-                                        <div class="flex justify-between mb-2">
-                                            <span class="font-medium">${r.date}</span>
-                                            <div class="flex gap-1 flex-wrap justify-end">
-                                                ${r.tags.map(t => `
-                                                    <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded">${t}</span>
-                                                `).join('')}
-                                            </div>
-                                        </div>
-                                        <div class="text-gray-700">${r.situation.length > 100 ? r.situation.substring(0, 100) + '...' : r.situation}</div>
-                                        ${r.insights ? `<div class="mt-2 text-sm text-gray-600">💡 ${r.insights.length > 50 ? r.insights.substring(0, 50) + '...' : r.insights}</div>` : ''}
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `}
-                    </div>
-
-                    <!-- クイックアクション -->
-                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-sm p-6 text-white no-print">
-                        <h3 class="text-lg font-semibold mb-2">💡 Gem④との連携</h3>
-                        <p class="text-sm opacity-90 mb-4">
-                            月1回、記録をテキストファイルでエクスポートして、Gem④にアップロードすることで、詳細な分析と振り返りができます。
-                        </p>
-                        <button onclick="changeView('export')" class="bg-white text-indigo-600 px-4 py-2 rounded-lg hover:bg-gray-100">
-                            📤 エクスポートページへ
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderRecords() {
-            const filtered = getFilteredRecords();
+        // エクスポートセクション表示時に統計更新
+        function updateExportStats() {
+            document.getElementById('export-stat-total').textContent = records.length;
             
-            return `
-                <div class="space-y-4">
-                    <!-- 検索・フィルター -->
-                    <div class="bg-white rounded-xl shadow-sm p-4 no-print">
-                        <div class="space-y-3">
-                            <div>
-                                <input type="text" 
-                                    id="search-input"
-                                    placeholder="🔍 検索（出来事、気づき、日付）" 
-                                    value="${state.searchQuery}"
-                                    oninput="updateSearch(this.value)"
-                                    class="w-full px-4 py-2 border rounded-lg">
-                            </div>
-                            
-                            <div>
-                                <div class="text-sm font-medium mb-2">タグでフィルター:</div>
-                                <div class="flex flex-wrap gap-2">
-                                    ${tagOptions.map(tag => `
-                                        <button onclick="toggleFilterTag('${tag}')" type="button"
-                                            class="px-3 py-1 text-sm rounded-full ${
-                                                state.filterTags.includes(tag) 
-                                                    ? 'bg-indigo-600 text-white' 
-                                                    : 'bg-gray-200 text-gray-700'
-                                            }">
-                                            ${tag}
-                                        </button>
-                                    `).join('')}
-                                </div>
-                            </div>
-                            
-                            ${state.searchQuery || state.filterTags.length > 0 ? `
-                                <div class="flex justify-between items-center pt-2 border-t">
-                                    <span class="text-sm text-gray-600">
-                                        ${filtered.length}件の記録を表示中
-                                    </span>
-                                    <button onclick="clearFilters()" class="text-sm text-indigo-600 hover:underline">
-                                        フィルターをクリア
-                                    </button>
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                    
-                    <!-- 記録一覧 -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="text-lg font-semibold mb-4">
-                            ${state.searchQuery || state.filterTags.length > 0 ? 'フィルター結果' : 'すべての記録'}
-                            （${filtered.length}件）
-                        </h3>
-                        ${filtered.length === 0 ? `
-                            <div class="text-center py-8 text-gray-500">
-                                ${state.searchQuery || state.filterTags.length > 0 
-                                    ? '条件に一致する記録がありません' 
-                                    : '記録がありません'}
-                            </div>
-                        ` : `
-                            <div class="space-y-3">
-                                ${filtered.map(r => `
-                                    <div onclick="openDetail(${r.id})" class="p-4 border rounded-lg hover:bg-indigo-50 cursor-pointer">
-                                        <div class="flex justify-between mb-2">
-                                            <span class="font-medium">${r.date}</span>
-                                            <div class="flex gap-1 flex-wrap justify-end">
-                                                ${r.tags.map(t => `
-                                                    <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded">${t}</span>
-                                                `).join('')}
-                                            </div>
-                                        </div>
-                                        <div class="text-gray-700">${r.situation}</div>
-                                        ${r.insights ? `<div class="mt-2 text-sm text-gray-600 bg-yellow-50 p-2 rounded">💡 ${r.insights}</div>` : ''}
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `}
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderExport() {
-            return `
-                <div class="space-y-6">
-                    <!-- Gem④連携 -->
-                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-                        <h2 class="text-2xl font-bold mb-2">📤 Gem④との連携</h2>
-                        <p class="opacity-90 mb-4">
-                            記録をテキストファイルでエクスポートして、Gem④にアップロードすることで、
-                            月1回の詳細な振り返りと分析ができます。
-                        </p>
-                    </div>
-
-                    <!-- エクスポートオプション -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <h3 class="text-lg font-semibold mb-3">📄 テキストエクスポート（推奨）</h3>
-                            <p class="text-sm text-gray-600 mb-4">
-                                すべての記録をテキスト形式でエクスポート。Gem④にアップロードして月1回の振り返りに使用します。
-                            </p>
-                            <button 
-                                onclick="exportText()" 
-                                class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-                                ${state.records.length === 0 ? 'disabled' : ''}>
-                                📄 テキストファイルをダウンロード
-                            </button>
-                        </div>
-
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <h3 class="text-lg font-semibold mb-3">📅 期間指定エクスポート</h3>
-                            <p class="text-sm text-gray-600 mb-4">
-                                特定期間の記録のみをエクスポート。月次レポートの作成に便利です。
-                            </p>
-                            <button 
-                                onclick="exportPeriod()" 
-                                class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
-                                ${state.records.length === 0 ? 'disabled' : ''}>
-                                📅 期間を指定してダウンロード
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- バックアップ・復元 -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="text-lg font-semibold mb-4">💾 バックアップと復元</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                            <button 
-                                onclick="checkStorageData()" 
-                                class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
-                                📊 保存データを確認
-                            </button>
-                            <button 
-                                onclick="exportJSON()" 
-                                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
-                                ${state.records.length === 0 ? 'disabled' : ''}>
-                                💾 JSONバックアップ
-                            </button>
-                            <button 
-                                onclick="importData()" 
-                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                                📥 データをインポート
-                            </button>
-                            <button 
-                                onclick="clearAllData()" 
-                                class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50"
-                                ${state.records.length === 0 ? 'disabled' : ''}>
-                                🗑️ すべて削除
-                            </button>
-                        </div>
-                        <div class="mt-4 text-sm text-gray-600 bg-yellow-50 p-3 rounded">
-                            <strong>⚠️ 重要:</strong> ブラウザのデータクリアやキャッシュ削除で記録が消える可能性があります。
-                            定期的にJSONバックアップをダウンロードして保管してください。
-                        </div>
-                    </div>
-
-                    <!-- 使い方ガイド -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="text-lg font-semibold mb-4">📖 Gem④との連携方法</h3>
-                        <div class="space-y-3 text-sm text-gray-700">
-                            <div class="flex gap-3">
-                                <div class="flex-shrink-0 w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
-                                <div>
-                                    <strong>記録を蓄積する</strong><br>
-                                    日々の出来事、気づき、タグを記録していきます。
-                                </div>
-                            </div>
-                            <div class="flex gap-3">
-                                <div class="flex-shrink-0 w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
-                                <div>
-                                    <strong>月1回、テキストエクスポート</strong><br>
-                                    上記の「テキストファイルをダウンロード」をクリック。
-                                </div>
-                            </div>
-                            <div class="flex gap-3">
-                                <div class="flex-shrink-0 w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
-                                <div>
-                                    <strong>Gem④にアップロード</strong><br>
-                                    Gem④を開き、ダウンロードしたテキストファイルをアップロード。
-                                </div>
-                            </div>
-                            <div class="flex gap-3">
-                                <div class="flex-shrink-0 w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs font-bold">4</div>
-                                <div>
-                                    <strong>振り返りと分析</strong><br>
-                                    Gem④が記録を分析し、パターンの抽出、進捗の可視化、来月の目標を提案します。
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 統計情報 -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="text-lg font-semibold mb-4">📊 現在の記録状況</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div>
-                                <div class="text-sm text-gray-600">総記録数</div>
-                                <div class="text-2xl font-bold text-indigo-600">${state.records.length}</div>
-                            </div>
-                            <div>
-                                <div class="text-sm text-gray-600">最古の記録</div>
-                                <div class="text-sm font-medium">${state.records.length > 0 ? state.records[state.records.length - 1].date : '-'}</div>
-                            </div>
-                            <div>
-                                <div class="text-sm text-gray-600">最新の記録</div>
-                                <div class="text-sm font-medium">${state.records.length > 0 ? state.records[0].date : '-'}</div>
-                            </div>
-                            <div>
-                                <div class="text-sm text-gray-600">記録期間</div>
-                                <div class="text-sm font-medium">
-                                    ${state.records.length > 1 ? 
-                                        Math.ceil((new Date(state.records[0].date) - new Date(state.records[state.records.length - 1].date)) / (1000 * 60 * 60 * 24)) + '日間' 
-                                        : '-'}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderAddForm() {
-            return `
-                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div class="p-6 border-b sticky top-0 bg-white">
-                            <div class="flex justify-between items-center">
-                                <h2 class="text-xl font-bold">新しい記録</h2>
-                                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
-                            </div>
-                        </div>
-                        
-                        <div class="p-6 space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium mb-2">日付 *</label>
-                                <input type="date" id="input-date" value="${state.newRecord.date}" 
-                                    class="w-full px-4 py-2 border rounded-lg">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium mb-2">今日の出来事 *</label>
-                                <textarea id="input-situation" rows="4" 
-                                    placeholder="何が起きましたか？&#10;例：朝、登校準備で癇癪を起こしました"
-                                    class="w-full px-4 py-2 border rounded-lg">${state.newRecord.situation}</textarea>
-                                <div class="text-xs text-gray-500 mt-1">
-                                    できるだけ具体的に記録してください
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium mb-2">気づき・メモ</label>
-                                <textarea id="input-insights" rows="3" 
-                                    placeholder="この出来事から分かったこと&#10;例：複数の指示を出してしまったのが原因かも"
-                                    class="w-full px-4 py-2 border rounded-lg">${state.newRecord.insights}</textarea>
-                                <div class="text-xs text-gray-500 mt-1">
-                                    うまくいった時の要因、うまくいかなかった時の要因など
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium mb-2">タグ</label>
-                                <div class="flex flex-wrap gap-2">
-                                    ${tagOptions.map(tag => `
-                                        <button onclick="toggleTag('${tag}')" type="button"
-                                            data-tag-button data-tag="${tag}"
-                                            class="px-3 py-1 text-sm rounded-full transition-colors ${
-                                                state.newRecord.tags.includes(tag) 
-                                                    ? 'bg-indigo-600 text-white' 
-                                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                            }">
-                                            ${tag}
-                                        </button>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="p-6 border-t bg-gray-50 flex gap-3">
-                            <button onclick="closeModal()" class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-100">
-                                キャンセル
-                            </button>
-                            <button onclick="saveRecord()" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                                保存
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderDetail() {
-            const r = state.selectedRecord;
-            return `
-                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div class="p-6 border-b sticky top-0 bg-white">
-                            <div class="flex justify-between items-center">
-                                <h2 class="text-xl font-bold">${r.date} の記録</h2>
-                                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">✕</button>
-                            </div>
-                        </div>
-                        
-                        <div class="p-6 space-y-4">
-                            ${r.tags.length > 0 ? `
-                                <div class="flex gap-2 flex-wrap">
-                                    ${r.tags.map(t => `
-                                        <span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full">${t}</span>
-                                    `).join('')}
-                                </div>
-                            ` : ''}
-
-                            <div>
-                                <h3 class="font-semibold mb-2 text-gray-700">出来事</h3>
-                                <p class="text-gray-900 whitespace-pre-wrap">${r.situation}</p>
-                            </div>
-
-                            ${r.insights ? `
-                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                    <h3 class="font-semibold mb-2 text-gray-700">💡 気づき</h3>
-                                    <p class="text-gray-900 whitespace-pre-wrap">${r.insights}</p>
-                                </div>
-                            ` : ''}
-                            
-                            <div class="text-xs text-gray-500 pt-2 border-t">
-                                作成日時: ${new Date(r.createdAt).toLocaleString('ja-JP')}
-                            </div>
-                        </div>
-
-                        <div class="p-6 border-t flex justify-between">
-                            <button onclick="closeModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-100">
-                                閉じる
-                            </button>
-                            <button onclick="deleteRecord(${r.id})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                                🗑️ 削除
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // グローバル関数（HTMLから呼び出し可能）
-        function openAddForm() {
-            state.showAddForm = true;
-            render();
-            // フォーカスを状況入力欄に
-            setTimeout(() => {
-                const input = document.getElementById('input-situation');
-                if (input) input.focus();
-            }, 100);
-        }
-
-        function closeModal() {
-            state.showAddForm = false;
-            state.selectedRecord = null;
-            render();
-        }
-
-        function changeView(view) {
-            state.view = view;
-            render();
-        }
-
-        function saveRecord() {
-            // フォームから値を取得
-            state.newRecord.date = document.getElementById('input-date').value;
-            state.newRecord.situation = document.getElementById('input-situation').value;
-            state.newRecord.insights = document.getElementById('input-insights').value;
-            addRecord();
-        }
-
-        function openDetail(id) {
-            state.selectedRecord = state.records.find(r => r.id === id);
-            render();
-        }
-
-        function deleteRecord(id) {
-            if (confirm('この記録を削除しますか？\n\nこの操作は取り消せません。')) {
-                state.records = state.records.filter(r => r.id !== id);
-                saveData();
-                state.selectedRecord = null;
-                render();
+            if (records.length > 0) {
+                const dates = records.map(r => new Date(r.date));
+                const oldest = new Date(Math.min(...dates));
+                const newest = new Date(Math.max(...dates));
+                const days = Math.ceil((newest - oldest) / (1000 * 60 * 60 * 24)) + 1;
+                
+                document.getElementById('export-stat-oldest').textContent = oldest.toLocaleDateString('ja-JP');
+                document.getElementById('export-stat-newest').textContent = newest.toLocaleDateString('ja-JP');
+                document.getElementById('export-stat-days').textContent = days + '日間';
+            } else {
+                document.getElementById('export-stat-oldest').textContent = '-';
+                document.getElementById('export-stat-newest').textContent = '-';
+                document.getElementById('export-stat-days').textContent = '-';
             }
         }
-
-        function updateSearch(query) {
-            state.searchQuery = query;
-            render();
-        }
-
-        function clearFilters() {
-            state.searchQuery = '';
-            state.filterTags = [];
-            render();
-        }
-
-        // 初期化
-        window.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            render();
-        });
-
-        // データの定期保存（5分ごと）
-        setInterval(() => {
-            if (state.records.length > 0) {
-                saveData();
-            }
-        }, 5 * 60 * 1000);
     </script>
 </body>
 </html>
