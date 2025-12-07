@@ -112,7 +112,21 @@
             } else {
                 state.newRecord.tags = [...tags, tag];
             }
-            render();
+            // render()を呼ばず、タグボタンのスタイルだけ更新
+            updateTagButtons();
+        }
+
+        // タグボタンのスタイルのみ更新
+        function updateTagButtons() {
+            const buttons = document.querySelectorAll('[data-tag-button]');
+            buttons.forEach(button => {
+                const tag = button.getAttribute('data-tag');
+                if (state.newRecord.tags.includes(tag)) {
+                    button.className = 'px-3 py-1 text-sm rounded-full transition-colors bg-indigo-600 text-white';
+                } else {
+                    button.className = 'px-3 py-1 text-sm rounded-full transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300';
+                }
+            });
         }
 
         // フィルタータグ切り替え
@@ -156,6 +170,11 @@
                 alert('エクスポートするデータがありません');
                 return;
             }
+            
+            if (!confirm(`${state.records.length}件の記録をJSONファイルでバックアップします。\n\nよろしいですか？`)) {
+                return;
+            }
+            
             const dataStr = JSON.stringify(state.records, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -164,13 +183,17 @@
             a.download = `日々の記録_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
-            alert('JSONバックアップをダウンロードしました');
+            alert('JSONバックアップをダウンロードしました\n\n安全な場所に保存してください。');
         }
 
         // テキストエクスポート（Gem④用）
         function exportText() {
             if (state.records.length === 0) {
                 alert('エクスポートするデータがありません');
+                return;
+            }
+            
+            if (!confirm(`${state.records.length}件の記録をテキストファイルでエクスポートします。\n\nこのファイルをGem④にアップロードして月1回の振り返りに使用できます。\n\nよろしいですか？`)) {
                 return;
             }
             
@@ -223,6 +246,10 @@
                 return;
             }
             
+            if (!confirm(`${startDate} 〜 ${endDate} の記録 ${filtered.length}件をエクスポートします。\n\nよろしいですか？`)) {
+                return;
+            }
+            
             let text = `# 日々の記録（${startDate} 〜 ${endDate}）\n`;
             text += `作成日: ${new Date().toLocaleDateString('ja-JP')}\n`;
             text += `記録数: ${filtered.length}\n\n`;
@@ -251,7 +278,7 @@
             a.download = `日々の記録_${startDate}_${endDate}.txt`;
             a.click();
             URL.revokeObjectURL(url);
-            alert(`${startDate} 〜 ${endDate} の記録をダウンロードしました`);
+            alert(`${startDate} 〜 ${endDate} の ${filtered.length}件の記録をダウンロードしました`);
         }
 
         // データインポート
@@ -700,6 +727,7 @@
                                 <div class="flex flex-wrap gap-2">
                                     ${tagOptions.map(tag => `
                                         <button onclick="toggleTag('${tag}')" type="button"
+                                            data-tag-button data-tag="${tag}"
                                             class="px-3 py-1 text-sm rounded-full transition-colors ${
                                                 state.newRecord.tags.includes(tag) 
                                                     ? 'bg-indigo-600 text-white' 
