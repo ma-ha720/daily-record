@@ -465,7 +465,9 @@
 
                     <!-- 最近の記録 -->
                     <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h3 class="text-lg font-semibold mb-4">最近の記録（5件）</h3>
+                        <h3 class="text-lg font-semibold mb-4">
+                            ${state.records.length === 0 ? '最近の記録' : `最近の記録（${Math.min(state.records.length, 5)}件）`}
+                        </h3>
                         ${state.records.length === 0 ? `
                             <div class="text-center py-8 text-gray-500">
                                 まだ記録がありません。<br>「新規記録」から始めましょう。
